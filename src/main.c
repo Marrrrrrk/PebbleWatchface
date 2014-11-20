@@ -24,8 +24,7 @@ static void update_time() {
 
 // Time handlers
 static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
-	update_time()
-	
+	update_time();
 }
 
 // Window Handlers
