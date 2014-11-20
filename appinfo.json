@@ -1,0 +1,19 @@
+{
+    "appKeys": {},
+    "capabilities": [
+        ""
+    ],
+    "companyName": "Mark Broste",
+    "longName": "Watchface tutorial",
+    "projectType": "native",
+    "resources": {
+        "media": []
+    },
+    "shortName": "Watchface tutorial",
+    "uuid": "5615a7cc-adfb-48c3-be13-a06d27adba90",
+    "versionCode": 1,
+    "versionLabel": "1.0",
+    "watchapp": {
+        "watchface": false
+    }
+}
