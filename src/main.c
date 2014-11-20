@@ -2,12 +2,6 @@
 static Window *s_main_window;
 static TextLayer *s_time_layer;
 
-// Time handlers
-static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
-	update_time()
-	
-}
-
 static void update_time() {
 	// temporary struct
 	time_t temp = time(NULL);
@@ -26,6 +20,12 @@ static void update_time() {
 	
 	// display
 	text_layer_set_text(s_time_layer, buffer);
+}
+
+// Time handlers
+static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
+	update_time()
+	
 }
 
 // Window Handlers
