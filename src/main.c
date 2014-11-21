@@ -2,6 +2,8 @@
 static Window *s_main_window;
 static TextLayer *s_time_layer;
 static GFont s_time_font;
+static BitmapLayer *s_background_layer;
+static GBitmap *s_background_bitmap;
 
 static void update_time() {
 	// temporary struct
@@ -30,7 +32,13 @@ static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
 
 // Window Handlers
 static void main_window_load(Window *window) {
-  s_time_layer = text_layer_create(GRect(0, 25, 144, 50));
+  // background
+  s_background_bitmap = gbitmap_create_with_resource(RESOURCE_ID_BACKGROUND_IMAGE);
+  s_background_layer = bitmap_layer_create(GRect(0, 0, 144, 168));
+  bitmap_layer_set_bitmap(s_background_layer, s_background_bitmap);
+  layer_add_child(window_get_root_layer(window), bitmap_layer_get_layer(s_background_layer));
+  //
+  s_time_layer = text_layer_create(GRect(5, 52, 139, 50));
   text_layer_set_background_color(s_time_layer, GColorClear);
   text_layer_set_text_color(s_time_layer, GColorBlack);
   
@@ -73,7 +81,8 @@ static void init () {
 
 static void deinit () {
   window_destroy(s_main_window);
-  
+  gbitmap_destroy(s_background_bitmap);
+  bitmap_layer_destroy(s_background_layer);
 }
 
 int main(void) {
