@@ -7,7 +7,14 @@
     "longName": "Watchface tutorial",
     "projectType": "native",
     "resources": {
-        "media": []
+        "media": [
+            {
+                "compatibility": "2.7",
+                "file": "fonts/perfect-dos-vga.ttf",
+                "name": "PERFECT_DOS_VGA_48",
+                "type": "font"
+            }
+        ]
     },
     "shortName": "Watchface tutorial",
     "uuid": "5615a7cc-adfb-48c3-be13-a06d27adba90",
