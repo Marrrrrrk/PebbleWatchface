@@ -30,7 +30,6 @@ static void update_time() {
 	else {
 		strftime(buffer, sizeof("00:00"), "%I:%M", tick_time);
 	}
-	
 	// display
 	text_layer_set_text(s_time_layer, buffer);
 }
@@ -38,7 +37,7 @@ static void update_time() {
 // Time handlers
 static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
 	update_time();
-  update_date();
+	update_date();
 }
 
 static void improve_text_layer(TextLayer *the_text_layer, GFont font) {
