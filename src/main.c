@@ -1,8 +1,12 @@
 #include <pebble.h>
+#define KEY_TEMPERATURE 0
+#define KEY_CONDITIONS 1
 static Window *s_main_window;
 static TextLayer *s_date_layer;
 static TextLayer *s_time_layer;
+static TextLayer *s_weather_layer;
 static GFont s_time_font;
+static GFont s_standard_font;
 static BitmapLayer *s_background_layer;
 static GBitmap *s_background_bitmap;
 
@@ -30,6 +34,7 @@ static void update_time() {
 	else {
 		strftime(buffer, sizeof("00:00"), "%I:%M", tick_time);
 	}
+	
 	// display
 	text_layer_set_text(s_time_layer, buffer);
 }
@@ -37,7 +42,7 @@ static void update_time() {
 // Time handlers
 static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
 	update_time();
-	update_date();
+  update_date();
 }
 
 static void improve_text_layer(TextLayer *the_text_layer, GFont font) {
@@ -54,7 +59,7 @@ static void main_window_load(Window *window) {
   layer_add_child(window_get_root_layer(window), bitmap_layer_get_layer(s_background_layer));
   
   // date text layer
-  s_date_layer = text_layer_create(GRect(0, 0, 139, 50));
+  s_date_layer = text_layer_create(GRect(0, 10, 144, 40));
   text_layer_set_background_color(s_date_layer, GColorBlack);
   text_layer_set_text_color(s_date_layer, GColorWhite);
   text_layer_set_text_alignment(s_date_layer, GTextAlignmentCenter);
@@ -64,15 +69,24 @@ static void main_window_load(Window *window) {
   text_layer_set_background_color(s_time_layer, GColorClear);
   text_layer_set_text_color(s_time_layer, GColorBlack);
   
+  // weather layer
+  s_weather_layer = text_layer_create(GRect(0, 120, 144, 25));
+  text_layer_set_background_color(s_weather_layer, GColorClear);
+  text_layer_set_text_color(s_weather_layer, GColorWhite);
+  text_layer_set_text_alignment(s_weather_layer, GTextAlignmentCenter);
+  text_layer_set_text(s_weather_layer, "Loading...");
+  
   // improve the view
-  GFont time_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_PERFECT_DOS_VGA_48));
-  GFont date_font = fonts_get_system_font(FONT_KEY_GOTHIC_28);
-  improve_text_layer(s_date_layer, date_font);
-  improve_text_layer(s_time_layer, time_font);
+  s_time_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_PERFECT_DOS_VGA_48));
+  s_standard_font = fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD);
+  improve_text_layer(s_time_layer, s_time_font);
+  improve_text_layer(s_date_layer, s_standard_font);
+  improve_text_layer(s_weather_layer, s_standard_font);
   
   // add our text layers
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_date_layer));
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_time_layer));
+  layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_weather_layer));
   
   // displays time upon load
   update_time();
@@ -81,7 +95,24 @@ static void main_window_load(Window *window) {
 }
 static void main_window_unload(Window *window) {
   text_layer_destroy(s_time_layer);
+  text_layer_destroy(s_date_layer);
+  text_layer_destroy(s_weather_layer);
   fonts_unload_custom_font(s_time_font);
+}
+// App messaging
+static void inbox_dropped_callback(AppMessageResult reason, void *context) {
+  APP_LOG(APP_LOG_LEVEL_ERROR, "Message dropped!");
+}
+
+static void outbox_failed_callback(DictionaryIterator *iterator, AppMessageResult reason, void *context) {
+  APP_LOG(APP_LOG_LEVEL_ERROR, "Outbox send failed!");
+}
+
+static void outbox_sent_callback(DictionaryIterator *iterator, void *context) {
+  APP_LOG(APP_LOG_LEVEL_INFO, "Outbox send success!");
+}
+
+static void inbox_received_callback(DictionaryIterator *iterator, void *context) {
   
 }
 
@@ -101,6 +132,11 @@ static void init () {
   
   window_stack_push(s_main_window, true);
   
+  app_message_register_inbox_received(inbox_received_callback);
+  app_message_register_inbox_dropped(inbox_dropped_callback);
+  app_message_register_outbox_failed(outbox_failed_callback);
+  app_message_register_outbox_sent(outbox_sent_callback);
+  app_message_open(app_message_inbox_size_maximum(), app_message_outbox_size_maximum());
 }
 
 static void deinit () {
