@@ -113,7 +113,33 @@ static void outbox_sent_callback(DictionaryIterator *iterator, void *context) {
 }
 
 static void inbox_received_callback(DictionaryIterator *iterator, void *context) {
+  static char temperture_buffer[8];
+  static char conditions_buffer[32];
+  static char weather_layer_buffer[32];
+  // First item
+  Tuple *t = dict_read_first(iterator);
   
+  // Is the latest key NULL after latest iteration?
+  while (t != NULL) {
+    switch (t->key) {
+      case KEY_TEMPERATURE:
+      // write outputted format to sized buffer
+      snprintf(temperture_buffer, sizeof(temperture_buffer), "%dF", (int)t->value->int32);
+      break;
+      
+      case KEY_CONDITIONS:
+      snprintf(conditions_buffer, sizeof(conditions_buffer), "%s", t->value->cstring);
+      break;
+      
+      default:
+      APP_LOG(APP_LOG_LEVEL_ERROR, "Unexpected key:%d", (int)t->key);
+    }
+    
+    // Move onto to the next key
+    t = dict_read_next(iterator);
+  }
+  snprintf(weather_layer_buffer, sizeof(weather_layer_buffer), "%s %s", temperture_buffer, conditions_buffer);
+  text_layer_set_text(s_weather_layer, weather_layer_buffer);
 }
 
 // Setup and breakdown
