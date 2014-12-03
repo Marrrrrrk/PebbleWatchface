@@ -21,6 +21,21 @@ function locationSuccess(pos) {
     
     var conditions = json.weather[0].main;
     console.log("Conditions are " + conditions);
+    
+    var dict = {
+      "KEY_TEMPERATURE": temperature,
+      "KEY_CONDITIONS": conditions
+    };
+    
+    // Send the info to the watch
+    Pebble.sendAppMessage(dict,
+      function(e) {
+        console.log("Weather info sent to pebble successfully");
+      },
+      function(e) {
+        console.log("Error sending data to watch");
+      }
+      );
   });
 }
 
