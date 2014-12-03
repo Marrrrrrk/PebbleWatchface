@@ -7,6 +7,30 @@ var xhrRequest = function (url, type, callback) {
   xhr.send();
 };
 
+function sendWeatherData(json) {
+  var temperature = Math.round(json.main.temp);
+  console.log("Temperature is " + temperature);
+    
+  var conditions = json.weather[0].main;
+  console.log("Conditions are " + conditions);
+  
+  var dict = {
+    "KEY_TEMPERATURE": temperature,
+    "KEY_CONDITIONS": conditions
+  };
+    
+  // Send the info to the watch
+  Pebble.sendAppMessage(dict,
+    function(e) {
+      console.log("Weather info sent to pebble successfully");
+    },
+    function(e) {
+      console.log("Error sending data to watch");
+    }
+  );
+  
+}
+
 function locationSuccess(pos) {
   // build url
   var url = "http://api.openweathermap.org/data/2.5/weather?lat=" + pos.coords.latitude + "&lon=" + pos.coords.longitude + "&units=imperial";
@@ -14,28 +38,12 @@ function locationSuccess(pos) {
   // make our call
   xhrRequest(url, 'GET', function(responseText) {
     var json = JSON.parse(responseText);
-    console.log("JSON response " + json.main.temp);
-    
-    var temperature = Math.round(json.main.temp);
-    console.log("Temperature is " + temperature);
-    
-    var conditions = json.weather[0].main;
-    console.log("Conditions are " + conditions);
-    
-    var dict = {
-      "KEY_TEMPERATURE": temperature,
-      "KEY_CONDITIONS": conditions
-    };
-    
-    // Send the info to the watch
-    Pebble.sendAppMessage(dict,
-      function(e) {
-        console.log("Weather info sent to pebble successfully");
-      },
-      function(e) {
-        console.log("Error sending data to watch");
-      }
-      );
+    if (json) {
+      sendWeatherData(json);
+    }
+    else {
+      console.log("Weather data was null");
+    }
   });
 }
 
@@ -47,7 +55,7 @@ function getWeather() {
   navigator.geolocation.getCurrentPosition(
   locationSuccess,
   locationError,
-    {timeout:15000, maximumAge:6000}
+  {timeout:15000, maximumAge:6000}
   );
 }
 
